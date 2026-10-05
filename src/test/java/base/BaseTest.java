@@ -19,7 +19,7 @@ public class BaseTest {
 		
 		Properties prop = new Properties();
 
-        FileInputStream fis = new FileInputStream("C:\\Users\\ajeet.4.singh\\OneDrive - Coforge Limited\\Desktop\\Automation_Selenium\\src\\test\\resources\\Confiuration\\config.properties");
+        FileInputStream fis = new FileInputStream("C:\\Users\\ajeet.4.singh\\OneDrive - Coforge Limited\\Desktop\\Unacademy_AboutUs\\src\\test\\resources\\Confiuration\\config.properties");
         prop.load(fis);
 
         WebDriverManager.edgedriver().setup();
@@ -34,4 +34,8 @@ public class BaseTest {
 	public void tearDown() {
 		driver.quit();
 	}
+	
+	public WebDriver getDriver() {
+        return driver;
+    }
 }
