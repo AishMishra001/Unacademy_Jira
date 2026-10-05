@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+ 
 <suite name="Unacademy Test Automation Suite" verbose="1">
+ 
     <listeners>
         <listener class-name="listeners.ExtentTestNGListener" />
     </listeners>
-
+ 
     <test name="Module 1 - Sign up and Login Tests">
         <parameter name="browser" value="chrome" />
         <classes>
             <class name="tests.Module1_SignUpAndLoginTest" />
         </classes>
     </test>
+ 
+    <test name="Module 3 - Course Exploration and Goals">
+        <classes>
+            <class name="tests.TC_Module3_AddToGoal" />
+            <class name="tests.TC_Module3_CategoryFilter" />
+            <class name="tests.TC_Module3_CourseExploration" />
+            <class name="tests.TC_Module3_GoalPersistence" />
+        </classes>
+    </test>
+ 
 </suite>
+ 
