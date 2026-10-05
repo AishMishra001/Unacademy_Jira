@@ -30,36 +30,36 @@ public class AboutUsTest extends BaseTest {
 		
 	}
     
-//    @Test
-//    public void verifyAboutUsPage() throws InterruptedException
-//    {
-//    	Display_Page obj=new Display_Page(driver);
-//    	obj.clickabout();
-//    	
-//    	Assert.assertTrue(obj.istitledisplayed());
-//    }
+    @Test
+    public void verifyAboutUsPage() throws InterruptedException
+    {
+    	Display_Page obj=new Display_Page(driver);
+    	obj.clickabout();
+    	
+    	Assert.assertTrue(obj.istitledisplayed());
+    }
     
     
-//    @Test
-//    public void verifyAboutUsPerformance() throws InterruptedException
-//    {
-//        long start = System.currentTimeMillis();
-//        
-//        Display_Page obj = new Display_Page(driver);
-//        obj.clickabout();
-//        
-//        Assert.assertTrue(obj.istitledisplayed());
-//
-//        long end = System.currentTimeMillis();
-//
-//        long loadTime = end - start;
-//
-//        System.out.println("Load Time = " + loadTime);
-//
-//        Assert.assertTrue(loadTime < 3000);
-//    }
-//    
-//    
+    @Test
+    public void verifyAboutUsPerformance() throws InterruptedException
+    {
+        long start = System.currentTimeMillis();
+        
+        Display_Page obj = new Display_Page(driver);
+        obj.clickabout();
+        
+        Assert.assertTrue(obj.istitledisplayed());
+
+        long end = System.currentTimeMillis();
+
+        long loadTime = end - start;
+
+        System.out.println("Load Time = " + loadTime);
+
+        Assert.assertTrue(loadTime < 3000);
+    }
+    
+    
     @Test
     public void verifyMissionVision() throws InterruptedException
     {
@@ -69,70 +69,70 @@ public class AboutUsTest extends BaseTest {
         
         Thread.sleep(5000);
 
-//        System.out.println(
-//        	    driver.findElements(
-//        	        By.xpath("//*[contains(.,'OUR MISSION & IMPACT')]")
-//        	    ).size()
-//        	);
+        System.out.println(
+        	    driver.findElements(
+        	        By.xpath("//*[contains(.,'OUR MISSION & IMPACT')]")
+        	    ).size()
+        	);
         
         Assert.assertTrue(obj.isMissionVisionDisplayed());
     }
-//    
-//    
-//    @Test
-//    public void verifyAchievements() throws InterruptedException
-//    {
-//        Display_Page obj = new Display_Page(driver);
-//        obj.clickabout();
-//        
-//
-//        Assert.assertTrue(obj.isAchievementsDisplayed());
-//    }
-//
-//	
-//    @Test
-//    public void verifyCurrentOpenings() throws InterruptedException
-//    {
-//        Display_Page obj = new Display_Page(driver);
-//        obj.clickabout();
-//        
-//        obj.clickOpenPositions();
-//        obj.clickSeeAllOpenings();
-//        obj.clickgetAllOpenings();
-//        
-//        Assert.assertTrue(obj.areJobsdisplayed());
-//    }
-//    
-//    
-//    @Test
-//    public void verifyContactInformation() throws InterruptedException
-//    {
-//        Display_Page obj = new Display_Page(driver);
-//        obj.clickabout();
-//        
-//
-//        Assert.assertTrue(obj.contactinfodisplayed());
-//    }
-//    
-//    
-//    @Test
-//    public void verifyEmailLink() throws InterruptedException
-//    {
-//        Display_Page obj = new Display_Page(driver);
-//        obj.clickabout();
-//        
-//
-//        Assert.assertTrue(obj.isEmailLinkDisplayed());
-//    }
-//    
-//    
-//    @Test
-//    public void verifySocialMediaLinks() throws InterruptedException
-//    {
-//        Display_Page obj = new Display_Page(driver);
-//        obj.clickabout();
-//        
-//
-//        Assert.assertTrue(obj.areSocialMediaLinksDisplayed());
-//    }
+    
+    
+    @Test
+    public void verifyAchievements() throws InterruptedException
+    {
+        Display_Page obj = new Display_Page(driver);
+        obj.clickabout();
+        
+
+        Assert.assertTrue(obj.isAchievementsDisplayed());
+    }
+
+	
+    @Test
+    public void verifyCurrentOpenings() throws InterruptedException
+    {
+        Display_Page obj = new Display_Page(driver);
+        obj.clickabout();
+        
+        obj.clickOpenPositions();
+        obj.clickSeeAllOpenings();
+        obj.clickgetAllOpenings();
+        
+        Assert.assertTrue(obj.areJobsdisplayed());
+    }
+    
+    
+    @Test
+    public void verifyContactInformation() throws InterruptedException
+    {
+        Display_Page obj = new Display_Page(driver);
+        obj.clickabout();
+        
+
+        Assert.assertTrue(obj.contactinfodisplayed());
+    }
+    
+    
+    @Test
+    public void verifyEmailLink() throws InterruptedException
+    {
+        Display_Page obj = new Display_Page(driver);
+        obj.clickabout();
+        
+
+        Assert.assertTrue(obj.isEmailLinkDisplayed());
+    }
+    
+    
+    @Test
+    public void verifySocialMediaLinks() throws InterruptedException
+    {
+        Display_Page obj = new Display_Page(driver);
+        obj.clickabout();
+        
+
+        Assert.assertTrue(obj.areSocialMediaLinksDisplayed());
+    }
 }
