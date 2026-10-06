@@ -2,20 +2,25 @@ package tests;
 
 import java.io.IOException;
 
-import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import base.BaseTest;
+import listeners.ExtentTestNGListener;
 import pages.Display_Page;
 
+@Listeners(ExtentTestNGListener.class)
 public class AboutUsTest extends BaseTest {
+
+    private Display_Page aboutPage;
 
     @BeforeMethod
     public void beforeMethod() throws IOException {
         setup();
+        aboutPage = new Display_Page(driver);
     }
 
     @AfterMethod
@@ -23,112 +28,99 @@ public class AboutUsTest extends BaseTest {
         tearDown();
     }
 
-    @Test
-    public void verifyAboutUsPage() {
-
-        Display_Page obj = new Display_Page(driver);
-
-        obj.clickabout();
-
-        Assert.assertTrue(obj.istitledisplayed());
-    }
-    
-    @Test
-    public void TC048_verifyAboutUsResponsiveness() {
-
-        Display_Page obj = new Display_Page(driver);
-
-        obj.clickabout();
-
-        Assert.assertTrue(obj.isResponsive());
-    }
-
-    @Test
-    public void verifyAboutUsPerformance() {
-
-        long start = System.currentTimeMillis();
-
-        Display_Page obj = new Display_Page(driver);
-
-        obj.clickabout();
-
-        Assert.assertTrue(obj.istitledisplayed());
-
-        long end = System.currentTimeMillis();
-
-        long loadTime = end - start;
-
-        System.out.println("Load Time = " + loadTime);
+    @Test(priority = 1,description = "TC047 - Validate that the About Us page displays company information, mission, and services correctly")
+    public void validateAboutUsPageContent() {
+    	
+        aboutPage.clickabout();
+        Assert.assertTrue(aboutPage.istitledisplayed(), "About Us page content is not displayed correctly");
         
-        Assert.assertTrue(loadTime < 10000);
     }
 
-    @Test
-    public void verifyMissionVision() throws InterruptedException {
+    @Test(priority = 2,description = "TC048 - Validate About Us page responsiveness across desktop, tablet, and mobile viewports")
+    public void validateAboutUsResponsiveness() {
 
-        Display_Page obj = new Display_Page(driver);
+        aboutPage.clickabout();
 
-        obj.clickabout();
-
-        Thread.sleep(1000);
-
-        System.out.println(driver.getTitle());
-        System.out.println(driver.getCurrentUrl());
-
-        Assert.assertTrue(obj.isMissionVisionDisplayed());
+        Assert.assertTrue(aboutPage.isResponsive(),"About Us page is not responsive across different screen sizes");
     }
 
-    @Test
-    public void verifyAchievements() {
+    @Test(priority = 3,description = "TC049 - Validate About Us page load performance meets acceptable response time")
+    public void validateAboutUsPerformance() {
 
-        Display_Page obj = new Display_Page(driver);
+        long startTime = System.currentTimeMillis();
 
-        obj.clickabout();
+        aboutPage.clickabout();
 
-        Assert.assertTrue(obj.isAchievementsDisplayed());
+        Assert.assertTrue(aboutPage.istitledisplayed(),"About Us page failed to load");
+
+        long loadTime = System.currentTimeMillis() - startTime;
+
+        System.out.println("About Us Page Load Time : " + loadTime + " ms");
+
+        Assert.assertTrue(loadTime < 5000,"About Us page took more than 5 seconds to load");
     }
 
-    @Test
-    public void verifyCurrentOpenings() {
+    @Test(priority = 4,description = "TC050 - Validate Mission and Vision section is displayed with correct content")
+    public void validateMissionAndVisionSection() {
 
-        Display_Page obj = new Display_Page(driver);
+        aboutPage.clickabout();
 
-        obj.clickabout();
-
-        obj.clickOpenPositions();
-        obj.clickSeeAllOpenings();
-        obj.clickgetAllOpenings();
-
-        Assert.assertTrue(obj.areJobsdisplayed());
+        Assert.assertTrue(aboutPage.isMissionVisionDisplayed(), "Mission and Vision section is not displayed");
     }
 
-    @Test
-    public void verifyContactInformation() {
+    @Test(priority = 5,description = "TC051 - Validate Company Achievements section is displayed successfully")
+    public void validateAchievementsSection() {
 
-        Display_Page obj = new Display_Page(driver);
+        aboutPage.clickabout();
 
-        obj.clickabout();
-
-        Assert.assertTrue(obj.contactinfodisplayed());
+        Assert.assertTrue(aboutPage.isAchievementsDisplayed(),"Company Achievements section is not displayed");
     }
 
-    @Test
-    public void verifyEmailLink() {
+    @Test(priority = 6,description = "TC052 - Validate Current Openings section displays available job opportunities")
+    public void validateCurrentOpeningsSection() {
 
-        Display_Page obj = new Display_Page(driver);
+        aboutPage.clickabout();
 
-        obj.clickabout();
+        aboutPage.clickOpenPositions();
+        aboutPage.clickSeeAllOpenings();
+        aboutPage.clickgetAllOpenings();
 
-        Assert.assertTrue(obj.isEmailLinkDisplayed());
+        Assert.assertTrue(aboutPage.areJobsdisplayed(),"Current job openings are not displayed");
     }
 
-    @Test
-    public void verifySocialMediaLinks() {
+    @Test(priority = 7,description = "TC053 - Validate Apply action redirects the user to the job application page")
+    public void validateJobApplicationRedirection() {
 
-        Display_Page obj = new Display_Page(driver);
+        aboutPage.clickabout();
 
-        obj.clickabout();
+        aboutPage.clickOpenPositions();
+        aboutPage.clickSeeAllOpenings();
+        aboutPage.clickgetAllOpenings();
 
-        Assert.assertTrue(obj.areSocialMediaLinksDisplayed());
+        Assert.assertTrue(aboutPage.areJobsdisplayed(),"User was not redirected to the job application page");
+    }
+
+    @Test(priority = 8,description = "TC054 - Validate contact information including email, phone number, and address is displayed")
+    public void validateContactInformation() {
+
+        aboutPage.clickabout();
+
+        Assert.assertTrue(aboutPage.contactinfodisplayed(),"Contact information is not displayed");
+    }
+
+    @Test(priority = 9,description = "TC055 - Validate email link is visible and accessible to the user")
+    public void validateEmailLink() {
+
+        aboutPage.clickabout();
+
+        Assert.assertTrue(aboutPage.isEmailLinkDisplayed(),"Email link is not displayed");
+    }
+
+    @Test(priority = 10,description = "TC056 - Validate social media links redirect users to official platform pages")
+    public void validateSocialMediaLinks() {
+
+        aboutPage.clickabout();
+
+        Assert.assertTrue(aboutPage.areSocialMediaLinksDisplayed(),"Social media links are not displayed");
     }
 }
