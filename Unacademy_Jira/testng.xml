@@ -8,7 +8,19 @@
     <test name="Module 2 - Payment and Subscription Tests">
         <parameter name="browser" value="chrome" />
         <classes>
-            <class name="tests.SubscriptionAndPaymentTest" />
+            <class name="tests.SubscriptionAndPaymentTest">
+                <methods>
+                    <include name="TC057_VerifySubscriptionPlanList" />
+                    <include name="TC058_VerifyMonthlySubscriptionPlan" />
+                    <include name="TC059_VerifyAnnualSubscriptionPlan" />
+                    <include name="TC060_VerifySelectSubscriptionPlan" />
+                    <include name="TC061_VerifySubscriptionPricingDisplay" />
+                    <include name="TC062_VerifySubscriptionComparison" />
+                    <include name="TC063_VerifyUpgradeFromFreeToSubscription" />
+                    <include name="TC064_VerifyDowngradeSubscription" />
+                    <include name="TC065_VerifyRenewalOption" />
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

@@ -81,6 +81,29 @@ public class AuthDrawer {
         }
     }
 
+    public boolean clickLoginOrContinue() {
+        try {
+            List<WebElement> loginButtons = driver.findElements(loginSubmitButton);
+            for (WebElement button : loginButtons) {
+                if (button.isDisplayed()) {
+                    clickElement(button);
+                    return true;
+                }
+            }
+
+            List<WebElement> continueButtons = driver.findElements(continueButton);
+            for (WebElement button : continueButtons) {
+                if (button.isDisplayed()) {
+                    clickElement(button);
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public void clickLoginSubmit() {
         try {
             WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(loginSubmitButton));
@@ -118,9 +141,40 @@ public class AuthDrawer {
     public void enterEmail(String email) {
         WebElement input = wait.until(ExpectedConditions.elementToBeClickable(emailInput));
         input.click();
-        input.sendKeys(Keys.chord(Keys.COMMAND, "a"), Keys.BACK_SPACE);
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
         input.clear();
         input.sendKeys(email);
+    }
+
+    public boolean isEmailInputDisplayed() {
+        try {
+            return driver.findElements(emailInput).stream().anyMatch(WebElement::isDisplayed);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void waitForManualOtpCompletion(long timeoutSeconds) {
+        WebDriverWait otpWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+        otpWait.until(currentDriver -> {
+            if (currentDriver.findElements(drawerContainer).stream().noneMatch(WebElement::isDisplayed)) {
+                return true;
+            }
+
+            List<WebElement> inputs = currentDriver.findElements(otpInput);
+            if (inputs.isEmpty() || !inputs.get(0).isDisplayed()) {
+                return true;
+            }
+
+            String value = inputs.get(0).getAttribute("value");
+            return value != null && value.replaceAll("\\D", "").length() >= 6;
+        });
+
+        if (isOtpInputDisplayed()) {
+            clickVerifyOrSubmit();
+            otpWait.until(currentDriver -> currentDriver.findElements(otpInput).stream()
+                    .noneMatch(WebElement::isDisplayed));
+        }
     }
 
     public boolean isOtpInputDisplayed() {
@@ -179,6 +233,14 @@ public class AuthDrawer {
             } catch (Exception ex) {
                 System.out.println("Submit button fallback: " + ex.getMessage());
             }
+        }
+    }
+
+    private void clickElement(WebElement element) {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         }
     }
 

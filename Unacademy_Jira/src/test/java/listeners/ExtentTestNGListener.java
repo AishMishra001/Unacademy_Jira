@@ -75,7 +75,7 @@ public class ExtentTestNGListener implements ITestListener {
             WebDriver driver = ((BaseTest) currentClass).getDriver();
             if (driver != null) {
                 try {
-                    String screenshot = ScreenshotUtility.capture(driver, testName + "_FAIL");
+                    String screenshot = ScreenshotUtility.capture(driver, testName + "_FAILED");
                     if (screenshot != null) {
                         test.get().addScreenCaptureFromPath(screenshot, "Failure Screenshot");
                     }

@@ -89,6 +89,18 @@ Unacademy_Jira/
    mvn test -Dbrowser=chrome -Dheadless=false
    ```
 
+### Subscription and payment automation
+
+The Module 2 suite opens the UPSC Optional subscription page directly:
+
+`https://unacademy.com/goal/upsc-optional/NYHNH/subscriptions`
+
+The subscription page is checked before authentication. If the public page exposes
+the plans, the suite continues without logging in. If checkout opens the login
+drawer, the suite switches to email login using `loginEmail` from
+`src/test/resources/config.properties` and waits up to five minutes for the OTP to
+be entered manually in the visible browser. Keep `headless=false` for this flow.
+
 ---
 
 ## 📊 Reports & Screenshots

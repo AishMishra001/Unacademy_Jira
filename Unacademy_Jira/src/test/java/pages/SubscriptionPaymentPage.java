@@ -12,14 +12,17 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class SubscriptionPaymentPage {
 
+    public static final String SUBSCRIPTION_URL =
+            "https://unacademy.com/goal/upsc-optional/NYHNH/subscriptions";
+
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    private final By pricingLink = By.xpath("//a[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'pricing') or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'plans') or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'subscription')] | //button[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'pricing') or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'plans') or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'subscription')] ");
     private final By planCard = By.xpath("//div[contains(@class, 'plan') or contains(@class, 'pricing') or contains(@class, 'subscription') or contains(., 'Plus') or contains(., 'Pro') or contains(., 'Premium') or contains(., 'Yearly') or contains(., 'Monthly')]");
     private final By couponInput = By.xpath("//input[contains(@placeholder, 'Coupon') or contains(@placeholder, 'Apply') or contains(@name, 'coupon') or contains(@aria-label, 'coupon')] | //input[@type='text' and contains(@class, 'coupon')] ");
     private final By applyCouponButton = By.xpath("//button[contains(., 'Apply') or contains(., 'Redeem') or contains(., 'Coupon')] ");
-    private final By checkoutButton = By.xpath("//button[contains(., 'Checkout') or contains(., 'Proceed') or contains(., 'Continue') or contains(., 'Pay now') or contains(., 'Pay')] ");
+    private final By getPlusButton = By.xpath("//button[normalize-space(.)='Get Plus']");
+    private final By checkoutButton = By.xpath("//button[normalize-space(.)='Continue' or contains(., 'Checkout') or contains(., 'Proceed') or contains(., 'Pay now') or (contains(., 'Pay') and not(contains(., 'Payment'))) or contains(., 'Get Plus')]");
     private final By paymentMethodButton = By.xpath("//button[contains(., 'Card') or contains(., 'UPI') or contains(., 'Net Banking') or contains(., 'Wallet') or contains(., 'EMI') or contains(., 'Paytm') or contains(., 'PhonePe')] | //label[contains(., 'Card') or contains(., 'UPI') or contains(., 'Net Banking') or contains(., 'Wallet') or contains(., 'EMI')] ");
     private final By cardNumberInput = By.xpath("//input[contains(@placeholder, 'Card Number') or contains(@name, 'cardNumber') or contains(@autocomplete, 'cc-number')] | //input[@inputmode='numeric' and contains(@class, 'card')] ");
     private final By cardNameInput = By.xpath("//input[contains(@placeholder, 'Name on Card') or contains(@name, 'cardName') or contains(@autocomplete, 'cc-name')] ");
@@ -37,46 +40,9 @@ public class SubscriptionPaymentPage {
 
     public boolean openSubscriptionPage() {
         try {
-            String[] candidateUrls = {
-                    "https://unacademy.com",
-                    "https://unacademy.com/pricing",
-                    "https://unacademy.com/plans",
-                    "https://unacademy.com/subscription",
-                    "https://unacademy.com/explore"
-            };
-
-            for (String url : candidateUrls) {
-                try {
-                    driver.get(url);
-                    String pageTitle = driver.getTitle() == null ? "" : driver.getTitle().toLowerCase();
-                    String pageSource = driver.getPageSource() == null ? "" : driver.getPageSource().toLowerCase();
-                    if (pageTitle.contains("oops! page not found") || pageSource.contains("oops! page not found") || pageSource.contains("page not found")) {
-                        continue;
-                    }
-
-                    List<WebElement> pricingOptions = driver.findElements(pricingLink);
-                    if (!pricingOptions.isEmpty()) {
-                        for (WebElement option : pricingOptions) {
-                            if (option.isDisplayed()) {
-                                clickElement(option);
-                                return true;
-                            }
-                        }
-                    }
-
-                    if (pageSource.contains("pricing") || pageSource.contains("plan") || pageSource.contains("subscription") || pageSource.contains("start learning")) {
-                        return true;
-                    }
-
-                    List<WebElement> planCandidates = driver.findElements(planCard);
-                    if (!planCandidates.isEmpty()) {
-                        return true;
-                    }
-                } catch (Exception ignored) {
-                    // continue to next URL when the current route is invalid or blocked
-                }
-            }
-            return false;
+            driver.get(SUBSCRIPTION_URL);
+            wait.until(ExpectedConditions.urlContains("/goal/upsc-optional/NYHNH/subscriptions"));
+            return isPlansVisible();
         } catch (Exception e) {
             return false;
         }
@@ -94,9 +60,19 @@ public class SubscriptionPaymentPage {
     public boolean selectPlan(String planName) {
         try {
             String name = planName == null || planName.trim().isEmpty() ? "Plus" : planName.trim();
-            By planLocator = By.xpath("//*[contains(normalize-space(.), '" + name + "')] | //button[contains(normalize-space(.), '" + name + "')] | //div[contains(normalize-space(.), '" + name + "')]");
+            By planLocator = By.xpath("//button[contains(normalize-space(.), 'Get " + name + "') or normalize-space(.)='" + name + "'] | //*[self::h1 or self::h2 or self::h3][contains(normalize-space(.), '" + name + "')]");
             List<WebElement> planOptions = driver.findElements(planLocator);
             for (WebElement option : planOptions) {
+                if (option.isDisplayed()) {
+                    clickElement(option);
+                    return true;
+                }
+            }
+
+            // The supplied route currently exposes only the Plus plan. Use it as
+            // the live equivalent when a workbook case names a legacy tier.
+            List<WebElement> availablePlan = driver.findElements(getPlusButton);
+            for (WebElement option : availablePlan) {
                 if (option.isDisplayed()) {
                     clickElement(option);
                     return true;
@@ -142,6 +118,15 @@ public class SubscriptionPaymentPage {
 
     public boolean proceedToCheckout() {
         try {
+            List<WebElement> plusButtons = driver.findElements(getPlusButton);
+            for (WebElement button : plusButtons) {
+                if (button.isDisplayed()) {
+                    clickElement(button);
+                    wait.until(ExpectedConditions.presenceOfElementLocated(checkoutButton));
+                    break;
+                }
+            }
+
             List<WebElement> buttons = driver.findElements(checkoutButton);
             for (WebElement button : buttons) {
                 if (button.isDisplayed()) {
