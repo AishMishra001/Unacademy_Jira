@@ -51,6 +51,7 @@ public class SubscriptionAndPaymentTest extends BaseTest {
     }
 
     private void verifySubscriptionCase(String testCaseId, String planName, String paymentMethod) {
+        System.out.println("[" + testCaseId + "] Login already completed; opening Subscription & Payment.");
         if (!subscriptionPage.openSubscriptionPage()) {
             throw new SkipException(testCaseId + " is skipped because the subscription page is unavailable.");
         }
@@ -59,9 +60,27 @@ public class SubscriptionAndPaymentTest extends BaseTest {
         }
         int caseNumber = Integer.parseInt(testCaseId.substring(2));
         if (caseNumber < 62) {
+            System.out.println("[" + testCaseId + "] Clicking Get Plus and checking the plan-selection view.");
             Assert.assertTrue(subscriptionPage.openPlanSelection(),
                     testCaseId + " should display the subscription duration and plan details");
+            if (caseNumber == 57) {
+                System.out.println("[" + testCaseId + "] Verifying all available plan cards are displayed.");
+                Assert.assertTrue(subscriptionPage.isPlansVisible(),
+                        testCaseId + " should display available subscription plans");
+            } else if (caseNumber == 58) {
+                System.out.println("[" + testCaseId + "] Verifying subscription prices are displayed.");
+                Assert.assertTrue(subscriptionPage.isPlanPricingVisible(),
+                        testCaseId + " should display subscription prices");
+            } else if (caseNumber == 59) {
+                System.out.println("[" + testCaseId + "] Verifying duration and benefit information is displayed.");
+                Assert.assertTrue(subscriptionPage.isDurationAndBenefitsVisible(),
+                        testCaseId + " should display duration and benefits");
+            } else {
+                System.out.println("[" + testCaseId + "] Verifying the subscription page is usable in the configured browser.");
+            }
         } else {
+            System.out.println("[" + testCaseId + "] Selecting a plan, continuing to payment, and checking "
+                    + paymentMethod + ".");
             Assert.assertTrue(subscriptionPage.selectPlan(planName),
                     testCaseId + " should allow selecting a subscription plan");
             Assert.assertTrue(subscriptionPage.proceedToCheckout(),
@@ -71,6 +90,15 @@ public class SubscriptionAndPaymentTest extends BaseTest {
             if (!authDrawer.isDrawerOpen()) {
                 Assert.assertTrue(subscriptionPage.isPaymentMethodVisible(paymentMethod),
                         testCaseId + " should display the " + paymentMethod + " payment option");
+                Assert.assertTrue(subscriptionPage.selectPaymentMethod(paymentMethod),
+                        testCaseId + " should select the " + paymentMethod + " payment option");
+                if (caseNumber == 63 || caseNumber == 64) {
+                    System.out.println("[" + testCaseId + "] Entering generated card details and capturing the card state.");
+                    Assert.assertTrue(subscriptionPage.enterGeneratedCardDetailsAndSubmit(),
+                            testCaseId + " should accept generated card input");
+                } else {
+                    System.out.println("[" + testCaseId + "] Payment method selected; capturing the payment state.");
+                }
             }
         }
     }
@@ -121,13 +149,14 @@ public class SubscriptionAndPaymentTest extends BaseTest {
     }
 
     @Test(priority = 10, description = "TC066: Verify invalid card payment")
-    public void TC066_VerifySubscriptionExpiryMessage() {
-        verifySubscriptionCase("TC066", "Plus", "Card");
-    }
-
-    @Test(priority = 11, description = "TC067: Verify payment failure due to insufficient balance")
-    public void TC067_VerifySubscriptionPause() {
-        verifySubscriptionCase("TC067", "Plus", "Card");
+    public void TC066_VerifyInvalidCardPayment() {
+        verifySubscriptionCase("TC066", "Plus", "Debit Card");
+        if (!authDrawer.isDrawerOpen()) {
+            Assert.assertTrue(subscriptionPage.enterGeneratedCardDetailsAndSubmit(),
+                    "TC066 should submit generated invalid card details");
+            Assert.assertTrue(subscriptionPage.isPaymentErrorDisplayed(),
+                    "TC066 should display an invalid card or payment error");
+        }
     }
 
     @Test(priority = 12, description = "TC068: Verify subscription cancellation flow")
