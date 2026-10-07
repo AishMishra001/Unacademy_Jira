@@ -19,6 +19,8 @@
                     <include name="TC063_VerifyUpgradeFromFreeToSubscription" />
                     <include name="TC064_VerifyDowngradeSubscription" />
                     <include name="TC065_VerifyRenewalOption" />
+                    <include name="TC066_VerifySubscriptionExpiryMessage" />
+                    <include name="TC067_VerifySubscriptionPause" />
                 </methods>
             </class>
         </classes>

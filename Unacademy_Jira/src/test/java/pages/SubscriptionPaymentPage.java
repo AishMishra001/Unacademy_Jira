@@ -18,12 +18,14 @@ public class SubscriptionPaymentPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    private final By planCard = By.xpath("//div[contains(@class, 'plan') or contains(@class, 'pricing') or contains(@class, 'subscription') or contains(., 'Plus') or contains(., 'Pro') or contains(., 'Premium') or contains(., 'Yearly') or contains(., 'Monthly')]");
+    private final By planCard = By.xpath("//*[contains(normalize-space(.), 'months') and contains(normalize-space(.), '₹') and not(.//*[contains(normalize-space(.), 'months') and contains(normalize-space(.), '₹')])]");
+    private final By getPlusButton = By.xpath("//button[normalize-space(.)='Get Plus']");
+    private final By durationOption = By.xpath("//*[not(ancestor::*[contains(@class, 'MuiDrawer-paper')]) and (self::button or self::label or @role='button') and contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'month')]");
     private final By couponInput = By.xpath("//input[contains(@placeholder, 'Coupon') or contains(@placeholder, 'Apply') or contains(@name, 'coupon') or contains(@aria-label, 'coupon')] | //input[@type='text' and contains(@class, 'coupon')] ");
     private final By applyCouponButton = By.xpath("//button[contains(., 'Apply') or contains(., 'Redeem') or contains(., 'Coupon')] ");
-    private final By getPlusButton = By.xpath("//button[normalize-space(.)='Get Plus']");
-    private final By checkoutButton = By.xpath("//button[normalize-space(.)='Continue' or contains(., 'Checkout') or contains(., 'Proceed') or contains(., 'Pay now') or (contains(., 'Pay') and not(contains(., 'Payment'))) or contains(., 'Get Plus')]");
+    private final By checkoutButton = By.xpath("//*[not(ancestor::*[contains(@class, 'MuiDrawer-paper')]) and (self::button or self::a or @role='button') and (normalize-space(.)='Continue' or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'checkout') or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'proceed') or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'pay now'))]");
     private final By paymentMethodButton = By.xpath("//button[contains(., 'Card') or contains(., 'UPI') or contains(., 'Net Banking') or contains(., 'Wallet') or contains(., 'EMI') or contains(., 'Paytm') or contains(., 'PhonePe')] | //label[contains(., 'Card') or contains(., 'UPI') or contains(., 'Net Banking') or contains(., 'Wallet') or contains(., 'EMI')] ");
+    private final By paymentPageHeading = By.xpath("//*[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'choose a payment method')]");
     private final By cardNumberInput = By.xpath("//input[contains(@placeholder, 'Card Number') or contains(@name, 'cardNumber') or contains(@autocomplete, 'cc-number')] | //input[@inputmode='numeric' and contains(@class, 'card')] ");
     private final By cardNameInput = By.xpath("//input[contains(@placeholder, 'Name on Card') or contains(@name, 'cardName') or contains(@autocomplete, 'cc-name')] ");
     private final By expiryInput = By.xpath("//input[contains(@placeholder, 'MM/YY') or contains(@placeholder, 'Expiry') or contains(@name, 'expiry')] ");
@@ -59,26 +61,57 @@ public class SubscriptionPaymentPage {
 
     public boolean selectPlan(String planName) {
         try {
-            String name = planName == null || planName.trim().isEmpty() ? "Plus" : planName.trim();
-            By planLocator = By.xpath("//button[contains(normalize-space(.), 'Get " + name + "') or normalize-space(.)='" + name + "'] | //*[self::h1 or self::h2 or self::h3][contains(normalize-space(.), '" + name + "')]");
-            List<WebElement> planOptions = driver.findElements(planLocator);
-            for (WebElement option : planOptions) {
-                if (option.isDisplayed()) {
-                    clickElement(option);
-                    return true;
-                }
+            if (!clickGetPlus()) {
+                return false;
             }
-
-            // The supplied route currently exposes only the Plus plan. Use it as
-            // the live equivalent when a workbook case names a legacy tier.
-            List<WebElement> availablePlan = driver.findElements(getPlusButton);
-            for (WebElement option : availablePlan) {
-                if (option.isDisplayed()) {
-                    clickElement(option);
-                    return true;
-                }
-            }
+            return selectAvailablePlan();
+        } catch (Exception e) {
             return false;
+        }
+    }
+
+    public boolean selectAvailablePlan() {
+        for (int attempt = 0; attempt < 10; attempt++) {
+            List<WebElement> options = driver.findElements(durationOption);
+            if (options.isEmpty()) {
+                options = driver.findElements(planCard);
+            }
+            for (WebElement option : options) {
+                if (option.isDisplayed()) {
+                    scrollIntoView(option);
+                    clickElement(option);
+                    return true;
+                }
+            }
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public boolean clickGetPlus() {
+        for (WebElement button : driver.findElements(getPlusButton)) {
+            if (button.isDisplayed() && button.isEnabled()) {
+                scrollIntoView(button);
+                clickElement(button);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean openPlanSelection() {
+        try {
+            if (!clickGetPlus()) {
+                return false;
+            }
+            wait.until(driver -> !driver.findElements(durationOption).isEmpty()
+                    || !driver.findElements(planCard).isEmpty());
+            return isPlansVisible();
         } catch (Exception e) {
             return false;
         }
@@ -118,21 +151,17 @@ public class SubscriptionPaymentPage {
 
     public boolean proceedToCheckout() {
         try {
-            List<WebElement> plusButtons = driver.findElements(getPlusButton);
-            for (WebElement button : plusButtons) {
-                if (button.isDisplayed()) {
-                    clickElement(button);
-                    wait.until(ExpectedConditions.presenceOfElementLocated(checkoutButton));
-                    break;
+            for (int attempt = 0; attempt < 3; attempt++) {
+                List<WebElement> buttons = driver.findElements(checkoutButton);
+                for (WebElement checkout : buttons) {
+                    if (checkout.isDisplayed() && checkout.isEnabled()) {
+                        scrollIntoView(checkout);
+                        clickElement(checkout);
+                        return true;
+                    }
                 }
-            }
-
-            List<WebElement> buttons = driver.findElements(checkoutButton);
-            for (WebElement button : buttons) {
-                if (button.isDisplayed()) {
-                    clickElement(button);
-                    return true;
-                }
+                ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight);");
+                Thread.sleep(400);
             }
             return false;
         } catch (Exception e) {
@@ -140,10 +169,37 @@ public class SubscriptionPaymentPage {
         }
     }
 
+    private void scrollIntoView(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({block:'center', inline:'nearest'});", element);
+    }
+
     public boolean isPaymentPageVisible() {
         try {
             List<WebElement> methods = driver.findElements(paymentMethodButton);
-            return !methods.isEmpty() || driver.getCurrentUrl().toLowerCase().contains("payment");
+            return !methods.isEmpty()
+                    || !driver.findElements(paymentPageHeading).isEmpty()
+                    || driver.getCurrentUrl().toLowerCase().contains("payment");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isPaymentMethodVisible(String method) {
+        try {
+            String value = method == null || method.trim().isEmpty() ? "card" : method.trim().toLowerCase();
+            String normalized = value.replace("-", "").replace(" ", "");
+            String aliases = normalized.contains("upi") ? "upi"
+                    : normalized.contains("netbank") ? "netbanking"
+                    : normalized.contains("debit") || normalized.contains("credit") ? "debit"
+                    : normalized;
+            String locatorText = "translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')";
+            String methodExpression = normalized.contains("debit") || normalized.contains("credit")
+                    ? "contains(" + locatorText + ", 'debit') and contains(" + locatorText + ", 'credit')"
+                    : "contains(" + locatorText + ", '" + aliases + "') or contains(" + locatorText + ", '"
+                            + value + "')";
+            By methodLocator = By.xpath("//*[" + methodExpression + "]");
+            return driver.findElements(methodLocator).stream().anyMatch(WebElement::isDisplayed);
         } catch (Exception e) {
             return false;
         }
