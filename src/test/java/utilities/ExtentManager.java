@@ -26,7 +26,7 @@ public class ExtentManager {
             String reportPath = reportFolder + File.separator + date + "_AutomationReport.html";
 
             ExtentSparkReporter reporter = new ExtentSparkReporter(reportPath);
-            reporter.config().setReportName("Unacademy Hybrid Automation Framework - Module 1: Sign up and Login");
+            reporter.config().setReportName("Unacademy Module 3 Automation Framework");
             reporter.config().setDocumentTitle("Unacademy Automation Test Report");
             reporter.config().setTheme(Theme.STANDARD);
 
@@ -34,8 +34,8 @@ public class ExtentManager {
             extent.attachReporter(reporter);
 
             extent.setSystemInfo("Application", "Unacademy Platform");
-            extent.setSystemInfo("Module", "Module 1 - Sign Up and Login");
-            extent.setSystemInfo("Author", "Aish Mishra");
+            extent.setSystemInfo("Module", "Module 3 - Start Learning and Course Selection");
+            extent.setSystemInfo("Author", "Anshika Sharma");
             extent.setSystemInfo("Environment", "QA");
             extent.setSystemInfo("OS", System.getProperty("os.name"));
             extent.setSystemInfo("Java Version", System.getProperty("java.version"));
